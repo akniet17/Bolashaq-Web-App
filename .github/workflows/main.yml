@@ -1,36 +1,37 @@
 name: Lint and Deploy
 
-on: [push]
+on:
+  push:
+    branches:
+      - main  
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+      - name: Checkout Repository
+        uses: actions/checkout@v2
 
-    - name: Use Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '14'
+      - name: Use Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
 
-    - name: Create package.json if not exists
-      run: |
-        if [ ! -f package.json ]; then
-          npm init -y
-        fi
+      - name: Cleanup and Install Dependencies
+        run: |
+          rm -rf node_modules
+          rm -f package-lock.json
+          npm install
 
-    - name: Cleanup and Install dependencies
-      run: npm install
+      - name: Run Lint Script
+        run: npm run lint
 
-    - name: Run lint script
-      run: npm run lint
+      - name: Build
+        run: npm run build
 
-    - name: Build
-      run: npm run build
-
-    - name: Deploy
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GH_PAT }}
-        publish_dir: ./dist
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GH_PAT }}
+          publish_dir: ./dist
