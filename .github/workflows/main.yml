@@ -1,0 +1,29 @@
+name: auto-Deploy
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+    - name: Cleanup and Install dependencies
+      run: |
+        rm -rf node_modules
+        rm -f package-lock.json
+        npm install
+    - name: Run lint script
+      run: npm run lint
+    - name: Build
+      run: npm run build
+    - name: Deploy
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GH_PAT }}
+        publish_dir: ./dist
